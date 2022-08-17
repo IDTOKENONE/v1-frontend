@@ -1,65 +1,65 @@
-name: build docker image
+# name: build docker image
 
-on:
-  push:
-    branches:
-      - develop
-    paths-ignore:
-      - '**.md'
-      - '.github/dependabot.yml'
+# on:
+#   push:
+#     branches:
+#       - develop
+#     paths-ignore:
+#       - '**.md'
+#       - '.github/dependabot.yml'
 
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: lint
-        uses: luke142367/Docker-Lint-Action@v1.1.1
-        with:
-          target: Dockerfile
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  build-and-publish-image:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: setup qemu
-        uses: docker/setup-qemu-action@v2
-      - name: setup docker buildx
-        uses: docker/setup-buildx-action@v2
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - name: login to ecr
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-      - name: build and push
-        uses: docker/build-push-action@v3
-        with:
-          tags: 265389612123.dkr.ecr.eu-central-1.amazonaws.com/frontend:${{ github.sha }}
-          push: true
-          build-args: |
-            NEXT_PUBLIC_TESTNET_GRAPHQL_URL=https://api-dev.whitewhale.money/graphql
-      - uses: actions/checkout@v3
-        with:
-          repository: 'White-Whale-Defi-Platform/tf-infra-dev-apps'
-          token: ${{ secrets.SERVICE_ACCOUNT_PAT }}
-          path: 'tf-infra-dev-apps'
-      - name: commit new version
-        working-directory: './tf-infra-dev-apps'
-        run: echo 'frontend_image_tag = "${{ github.sha }}"' > frontend.auto.tfvars
-      - uses: EndBug/add-and-commit@v9.0.0
-        with:
-          cwd: 'tf-infra-dev-apps'
-          branch: main
-          author_name: Whitewhale Service Account
-          author_email: aws@whitewhale.finance
-          message: 'Bump frontend to ${{ github.sha }}'
-          push: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.SERVICE_ACCOUNT_PAT }}
+# jobs:
+#   lint:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: checkout
+#         uses: actions/checkout@v3
+#       - name: lint
+#         uses: luke142367/Docker-Lint-Action@v1.1.1
+#         with:
+#           target: Dockerfile
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#   build-and-publish-image:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: checkout
+#         uses: actions/checkout@v3
+#       - name: setup qemu
+#         uses: docker/setup-qemu-action@v2
+#       - name: setup docker buildx
+#         uses: docker/setup-buildx-action@v2
+#       - name: configure aws credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.AWS_REGION }}
+#       - name: login to ecr
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v1
+#       - name: build and push
+#         uses: docker/build-push-action@v3
+#         with:
+#           tags: 265389612123.dkr.ecr.eu-central-1.amazonaws.com/frontend:${{ github.sha }}
+#           push: true
+#           build-args: |
+#             NEXT_PUBLIC_TESTNET_GRAPHQL_URL=https://api-dev.whitewhale.money/graphql
+#       - uses: actions/checkout@v3
+#         with:
+#           repository: 'White-Whale-Defi-Platform/tf-infra-dev-apps'
+#           token: ${{ secrets.SERVICE_ACCOUNT_PAT }}
+#           path: 'tf-infra-dev-apps'
+#       - name: commit new version
+#         working-directory: './tf-infra-dev-apps'
+#         run: echo 'frontend_image_tag = "${{ github.sha }}"' > frontend.auto.tfvars
+#       - uses: EndBug/add-and-commit@v9.0.0
+#         with:
+#           cwd: 'tf-infra-dev-apps'
+#           branch: main
+#           author_name: Whitewhale Service Account
+#           author_email: aws@whitewhale.finance
+#           message: 'Bump frontend to ${{ github.sha }}'
+#           push: true
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.SERVICE_ACCOUNT_PAT }}
