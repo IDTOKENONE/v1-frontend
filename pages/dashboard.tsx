@@ -1,18 +1,14 @@
-import React from "react";
-import Head from "next/head";
-import { NextPage } from "next";
+import Swap from 'components/Pages/Swap'
 
-import Dashboard from "components/pages/Dashboard";
+function getInitialTokenPairFromSearchParams() {
+  const params = new URLSearchParams(location.search)
+  const from = params.get('from')?.toUpperCase()
+  const to = params.get('to')?.toUpperCase()
+  return from || to ? ([from, to] as const) : undefined
+}
 
-const DashboardPage: NextPage = () => {
-  return (
-    <>
-      <Head>
-        <title>WhiteWhale Protocol</title>
-      </Head>
-      <Dashboard />
-    </>
-  );
-};
+const SwapPage = () => (
+  <Swap initialTokenPair={getInitialTokenPairFromSearchParams()} />
+)
 
-export default DashboardPage;
+export default SwapPage
